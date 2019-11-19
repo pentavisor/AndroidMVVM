@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_base"
+    app:startDestination="@id/fragmentMainPage">
+
+
+    <fragment
+        android:id="@+id/fragmentSecretMenu"
+        android:name="com.example.apptest2019.fragments.fragment_secret_menu.FragmentSecretMenu"
+        android:label="FragmentSecretMenu"
+        tools:layout="@layout/fragment_menu_base"/>
+    <fragment
+        android:id="@+id/fragmentLoginPage"
+        android:name="com.example.apptest2019.fragments.fragment_login_page.FragmentLoginPage"
+        android:label="FragmentLoginPage"
+        tools:layout="@layout/fragment_login_page">
+        <action
+            android:id="@+id/action_fragmentLoginPage_to_fragmentMainPage"
+            app:destination="@id/fragmentMainPage"
+            app:launchSingleTop="false"
+            app:popUpTo="@+id/fragmentLoginPage"
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentMainPage"
+        android:name="com.example.apptest2019.fragments.fragment_main_menu_page.FragmentMainPage"
+        android:label="FragmentMainPage"
+        tools:layout="@layout/fragment_main_page"/>
+    <action
+        android:id="@+id/action_global_fragmentLoginPage"
+        app:destination="@id/fragmentLoginPage"
+        app:launchSingleTop="true"
+        app:popUpToInclusive="true" />
+</navigation>

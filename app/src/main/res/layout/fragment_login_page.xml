@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.apptest2019.fragments.fragment_login_page.ViewModelFragmentLoginPage" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+<!--        <LinearLayout-->
+<!--            android:id="@+id/linearLayout3"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="60dp"-->
+<!--            android:background="@android:color/background_light"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent">-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/imageView2"-->
+<!--                android:layout_width="70dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:src="@drawable/mustache" />-->
+
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_marginStart="0dp"-->
+<!--                android:layout_marginEnd="0dp"-->
+<!--                android:gravity="center_vertical"-->
+<!--                android:text="@string/app_name"-->
+<!--                android:textColor="@color/black"-->
+<!--                android:textSize="25sp" />-->
+<!--        </LinearLayout>-->
+
+
+        <Button
+            android:id="@+id/buttonInput"
+            android:layout_width="260dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/buttonshape_red"
+            android:onClick="@{() -> viewModel.loginInit()}"
+            android:shadowColor="@color/redButtonShadowColor"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            android:text="@string/enter"
+            android:textAllCaps="false"
+            android:textColor="@color/redButtonTextColor"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.503"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Password" />
+
+        <Button
+            android:id="@+id/buttonReset"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/buttonshape_white"
+            android:enabled="@{viewModel.buttonResetBlockTrig.booleanValue()}"
+            android:gravity="center"
+            android:onClick="@{() -> viewModel.btnReset()}"
+            android:shadowColor="@color/whiteButtonShadowColor"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            android:text="@string/reset"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="@color/whiteButtonTextColor"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonInput" />
+
+        <EditText
+            android:id="@+id/Login"
+            android:layout_width="250dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="70dp"
+            android:autofillHints=""
+            android:background="@drawable/circle_form_angle_v2"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="@string/login_text_input"
+            android:inputType="textPersonName"
+            android:text="@{viewModel.textViewLogin}"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:targetApi="o" />
+
+        <EditText
+            android:id="@+id/Password"
+            android:layout_width="250dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:autofillHints=""
+            android:background="@drawable/circle_form_angle_v2"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="@string/pass_text_input"
+            android:inputType="textPassword"
+            android:text="@{viewModel.textViewPass}"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Login"
+            tools:targetApi="o" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
