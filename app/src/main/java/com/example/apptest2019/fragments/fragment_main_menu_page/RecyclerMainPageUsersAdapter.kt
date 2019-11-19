@@ -19,19 +19,24 @@ import java.lang.Exception
 * */
 
 class RecyclerMainPageUsersAdapter(
-    val cardClickListener:BasicAdapterCardClickListener,
-    val headerCardClickListener:BasicAdapterHeaderCardClickListener
+    val cardClickListener: BasicAdapterCardClickListener,
+    val headerCardClickListener: BasicAdapterHeaderCardClickListener
 ) :
     RecyclerView.Adapter<RecyclerMainPageUsersAdapter.ViewHolder>() {
     var items = listOf<Any>()
         set(value) {
             field = value
             // проверка должна быть сделана на каждый элемент header
-            if((items as? MutableList)?.get(0) !is EmptyHeaderClass)
-            (items as? MutableList)?.add(0, EmptyHeaderClass())
+            if (items.isEmpty()) {
+                addHeaderItems()
+            } else if ((items as? MutableList)?.get(0) !is EmptyHeaderClass)
+                addHeaderItems()
             this.notifyDataSetChanged()
         }//set y листа переопределён для того чтобы обновлть отображение адаптера при обновлении списка
 
+    private fun addHeaderItems() {
+        (items as? MutableList)?.add(0, EmptyHeaderClass())
+    }
 
     override fun getItemCount(): Int {
         return items.size
@@ -101,6 +106,7 @@ class RecyclerMainPageUsersAdapter(
             binding?.executePendingBindings()
         }
     }
+
     //класс создан для того чтобы можно было отличить элементы Headers в списке объектов Any
     inner class EmptyHeaderClass : Any()
 }
