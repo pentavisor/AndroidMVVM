@@ -4,111 +4,138 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apptest2019.R
 import com.example.apptest2019.databinding.RecyclerviewHeaderMainPageBinding
 import com.example.apptest2019.databinding.RecyclerviewItemMainPageBinding
 import com.example.apptest2019.repository.database.database_models.UserDataModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.lang.ClassCastException
 import java.lang.Exception
 
-/*
-* 0.5) вставить, продублировать  (items as? MutableList)?.add(0, Any())
-* 1) getItemViewType тип для определения нового поля в адаптере
-* 2) onCreateViewHolder вставить inflater для дальнейшего биндинга
-* 3) ViewHolder вставить туда конфигурирование
-* */
+private val ITEM_VIEW_TYPE_HEADER = 0
+private val ITEM_VIEW_TYPE_ITEM = 1
 
 class RecyclerMainPageUsersAdapter(
     val cardClickListener: BasicAdapterCardClickListener,
     val headerCardClickListener: BasicAdapterHeaderCardClickListener
 ) :
-    RecyclerView.Adapter<RecyclerMainPageUsersAdapter.ViewHolder>() {
-    var items = listOf<Any>()
-        set(value) {
-            field = value
-            // проверка должна быть сделана на каждый элемент header
-            if (items.isEmpty()) {
-                addHeaderItems()
-            } else if ((items as? MutableList)?.get(0) !is EmptyHeaderClass)
-                addHeaderItems()
-            this.notifyDataSetChanged()
-        }//set y листа переопределён для того чтобы обновлть отображение адаптера при обновлении списка
+    ListAdapter<DataItem, RecyclerView.ViewHolder>(DiffUtilUserDataModelCallback()) {
+    private val adapterScope = CoroutineScope(Dispatchers.Default)
 
-    private fun addHeaderItems() {
-        (items as? MutableList)?.add(0, EmptyHeaderClass())
+    //start фугкция для обновления содержимого листа
+    fun addHeaderAndSetList(list: List<UserDataModel>?) {
+        adapterScope.launch {
+            val items = when (list) {
+                null -> listOf(DataItem.Header)
+                else -> listOf(DataItem.Header) + list.map { DataItem.UserDataModelItem(it) }
+            }
+            withContext(Dispatchers.Main) {
+                submitList(items)
+            }
+        }
+
     }
-
-    override fun getItemCount(): Int {
-        return items.size
-    }
-
 
     override fun getItemViewType(position: Int): Int {
-        return when (position) {
-            0 -> {
-                1
-            }//нулевой элемент - HeaderViewHolder(кнопка) ViewType 1
-            else -> {
-                0
-            }//остальные элементы списка ViewType 0
+        return when (getItem(position)) {
+            is DataItem.Header -> ITEM_VIEW_TYPE_HEADER
+            is DataItem.UserDataModelItem -> ITEM_VIEW_TYPE_ITEM
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        var listItemBinding: ViewDataBinding? = null
-        try {
-            when (viewType) {
-                0 -> {
-                    listItemBinding = DataBindingUtil.inflate<RecyclerviewItemMainPageBinding>(
-                        inflater,
-                        R.layout.recyclerview_item_main_page,
-                        parent,
-                        false
-                    )
-                }// binding простого элемента
-                1 -> {
-                    listItemBinding = DataBindingUtil.inflate<RecyclerviewHeaderMainPageBinding>(
-                        inflater,
-                        R.layout.recyclerview_header_main_page,
-                        parent,
-                        false
-                    )
-                }//binding элемента Header
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+
+        return when (viewType) {
+            ITEM_VIEW_TYPE_HEADER -> HeaderViewHolder.from(parent)
+            ITEM_VIEW_TYPE_ITEM -> ItemViewHolder.from(parent)
+            else -> throw ClassCastException("Unknown viewType $viewType")
+        }
+
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is ItemViewHolder -> {
+                val userItem = getItem(position) as DataItem.UserDataModelItem
+                holder.bind(userItem.userDataModel, cardClickListener)
             }
-        } catch (E: Exception) {
-        }
-        return ViewHolder(listItemBinding)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position])
-    }
-
-    inner class ViewHolder(val binding: ViewDataBinding?) :
-        RecyclerView.ViewHolder((binding as ViewDataBinding).root) {
-        fun bind(item: Any) {
-            try {
-                //колбеки для определения параметров класса записи в ркциклкре
-                if (binding is RecyclerviewHeaderMainPageBinding) {
-                    // если биндинг от item это один из Headers
-                    binding.itemClickListener = headerCardClickListener
-                }
-                if (binding is RecyclerviewItemMainPageBinding) {
-                    // если биндинг от item это один из обычных Items
-                    binding.dataModel = (item as? UserDataModel)
-                    binding.itemClickListener = cardClickListener
-                }
-            } catch (e: TypeCastException) {
-
+            is HeaderViewHolder -> {
+                val headerItem = getItem(position) as DataItem.Header
+                holder.bind(headerCardClickListener)
             }
-            //binding.dataModel = item //чтобы не забыть что делает этот кусок :)
-            binding?.executePendingBindings()
         }
     }
 
-    //класс создан для того чтобы можно было отличить элементы Headers в списке объектов Any
-    inner class EmptyHeaderClass : Any()
+    class ItemViewHolder private constructor(val binding: RecyclerviewItemMainPageBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: UserDataModel, cardClickListener: BasicAdapterCardClickListener) {
+            //if (binding is RecyclerviewHeaderMainPageBinding) {
+            binding.dataModel = item
+            binding.itemClickListener = cardClickListener
+            binding.executePendingBindings()
+        }
+
+        companion object {
+            fun from(parent: ViewGroup): ItemViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = RecyclerviewItemMainPageBinding.inflate(layoutInflater, parent, false)
+                return ItemViewHolder(binding)
+            }
+        }
+    }
+
+
+    class HeaderViewHolder private constructor(val binding: RecyclerviewHeaderMainPageBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(cardClickListener: BasicAdapterHeaderCardClickListener) {
+            // if (binding is RecyclerviewHeaderMainPageBinding) {
+            // binding.dataModel = item
+            binding.itemClickListener = cardClickListener
+            binding.executePendingBindings()
+        }
+
+        companion object {
+            fun from(parent: ViewGroup): HeaderViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding =
+                    RecyclerviewHeaderMainPageBinding.inflate(layoutInflater, parent, false)
+                return HeaderViewHolder(binding)
+            }
+        }
+    }
+}
+
+// использование класса DiffUtil для того чтобы при обновлении списка отойти от this.notifyDataSetChanged()
+// это позволяет сильно экономить ресурсы на отрисовке RecyclerView при динамическом добавлении элементов
+// из за этго был заменен родитель класса с RecyclerView.Adapter<RecyclerMainPageUsersAdapter.ViewHolder>()
+// на  ListAdapter<UserDataModel, RecyclerMainPageUsersAdapter.ViewHolder>(DiffUtilUserDataModelCallback())
+// и  удален override fun getItemCount(): Int { return items.size }
+class DiffUtilUserDataModelCallback : DiffUtil.ItemCallback<DataItem>() {
+    override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+        return oldItem.equals(newItem)
+    }
+}
+
+sealed class DataItem {
+    abstract val id: Long
+
+    data class UserDataModelItem(val userDataModel: UserDataModel) : DataItem() {
+        override val id = userDataModel.id
+    }
+
+    object Header : DataItem() {
+        override val id: Long = Long.MIN_VALUE
+    }
 }
 
 // clickListener для элементов списка
@@ -120,3 +147,4 @@ interface BasicAdapterCardClickListener {
 interface BasicAdapterHeaderCardClickListener {
     fun cardHeaderClicked(typeOfButton: Int)
 }
+

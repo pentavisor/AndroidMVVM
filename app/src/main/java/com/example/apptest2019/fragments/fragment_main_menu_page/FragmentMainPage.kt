@@ -51,19 +51,19 @@ class FragmentMainPage : Fragment() {
         val adapter = RecyclerMainPageUsersAdapter(                                                                                  ///
             object : BasicAdapterCardClickListener {                                                                                 ///
                 override fun cardClicked(f: UserDataModel) {                                                                         ///
-                    Toast.makeText(context,"Началось удаление ${f.firstName +" "+ f.lastName}. ",Toast.LENGTH_SHORT).show()                ///
+                    Toast.makeText(context,"Началось удаление ${f.firstName +" "+ f.lastName}. ",Toast.LENGTH_SHORT).show()     ///
                 }                                                                                                                    ///
             }, object : BasicAdapterHeaderCardClickListener {                                                                        ///
                 override fun cardHeaderClicked(typeOfButton: Int) {                                                                  ///
                     viewModel.addUser()                                                                                              ///
-                    Toast.makeText(context,"Началось добавление $typeOfButton ",Toast.LENGTH_SHORT).show()                                   ///
+                    Toast.makeText(context,"Началось добавление $typeOfButton ",Toast.LENGTH_SHORT).show()                      ///
                 }                                                                                                                    ///
             })                                                                                                                       ///
         /// вешает обозреватель на recycleview.adaptor.items теперь они привязвны к viewmodel                                        ///
         viewModel.userList.observe(viewLifecycleOwner, Observer {                                                                    ///
             it?.let {                                                                                                                ///
-                adapter.items =                                                                                                      ///
-                    it                                                                                                               ///
+                adapter.addHeaderAndSetList(it)                                                                                      ///
+                // подписка на обновление List через DiffUtil( позволяет отрисовывать тока новые Items)                              ///
             }                                                                                                                        ///
         })                                                                                                                           ///
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
