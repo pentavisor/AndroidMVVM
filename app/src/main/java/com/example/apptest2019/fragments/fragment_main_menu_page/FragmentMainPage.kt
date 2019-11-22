@@ -2,6 +2,7 @@ package com.example.apptest2019.fragments.fragment_main_menu_page
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -62,7 +63,11 @@ class FragmentMainPage : Fragment() {
         /// вешает обозреватель на recycleview.adaptor.items теперь они привязвны к viewmodel                                        ///
         viewModel.userList.observe(viewLifecycleOwner, Observer {                                                                    ///
             it?.let {                                                                                                                ///
-                adapter.addHeaderAndSetList(it)                                                                                      ///
+                try{                                                                                                                 ///
+                    adapter.addHeaderAndSetList(it)                                                                                  ///
+                }catch (e:Throwable){                                                                                                ///
+                    Log.e("Exeption user adapter","Error! ${e.message}")                                                    ///
+                }                                                                                                                    ///
                 // подписка на обновление List через DiffUtil( позволяет отрисовывать тока новые Items)                              ///
             }                                                                                                                        ///
         })                                                                                                                           ///

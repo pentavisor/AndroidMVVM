@@ -1,5 +1,6 @@
 package com.example.apptest2019.fragments.fragment_main_menu_page
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -26,18 +27,18 @@ class RecyclerMainPageUsersAdapter(
     val headerCardClickListener: BasicAdapterHeaderCardClickListener
 ) :
     ListAdapter<DataItem, RecyclerView.ViewHolder>(DiffUtilUserDataModelCallback()) {
-    private val adapterScope = CoroutineScope(Dispatchers.Default)
+    private val adapterScope = CoroutineScope(Dispatchers.IO)
 
     //start фугкция для обновления содержимого листа
     fun addHeaderAndSetList(list: List<UserDataModel>?) {
         adapterScope.launch {
-            val items = when (list) {
-                null -> listOf(DataItem.Header)
-                else -> listOf(DataItem.Header) + list.map { DataItem.UserDataModelItem(it) }
-            }
-            withContext(Dispatchers.Main) {
-                submitList(items)
-            }
+                val items = when (list) {
+                    null -> listOf(DataItem.Header)
+                    else -> listOf(DataItem.Header) + list.map { DataItem.UserDataModelItem(it) }
+                }
+                withContext(Dispatchers.Main) {
+                    submitList(items)
+                }
         }
 
     }
